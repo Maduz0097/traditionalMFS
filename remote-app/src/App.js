@@ -1,29 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import React, {  useState } from 'react';
+
 import './App.css';
 function App() {
-  const [messages, setMessages] = useState([]);
 
-  useEffect(() => {
-    const handleMessage = (event) => {
-      if (event.data.type === 'eventFromContainer') {
-          console.log(2,performance.now())
-        setMessages((prevMessages) => [...prevMessages, event.data.data]);
-      }
+    const [sendTime, setSendTime] = useState(0);
+    const [input, setInput] = useState('');
+    const publish = (channel, data)=> {
+        window.parent.postMessage({ channel, data }, '*');
+    }
+    const handleSubmit = () => {
+            console.log(0,performance.now())
+            setSendTime(performance.now())
+            publish('channel1', {message : input})
+            console.log(1,performance.now())
+            setInput('');
     };
-    window.addEventListener('message', handleMessage);
-    window.parent.postMessage({ type: 'register', event: 'eventFromContainer' }, '*');
-    return () => window.removeEventListener('message', handleMessage);
-  }, []);
+
 
   return (
-      <div className="App">
-        <h1>Microfrontend A</h1>
-        <ul>
-          {messages.map((message, index) => (
-              <li key={index}>{message.empid}</li>
-          ))}
-        </ul>
-      </div>
+      <>
+          <div className={"data-input"}>
+              <textarea value={input} onChange={(e) => setInput(e.target.value)} />
+          </div>
+          <button onClick={handleSubmit}>Send Data</button>
+          <p>Data Send Time : {sendTime}</p>
+      </>
   );
 }
 

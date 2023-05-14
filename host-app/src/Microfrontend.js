@@ -1,18 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 
-const Microfrontend = ({ src, id, onMessage }) => {
+const Microfrontend = ({ src, id }) => {
     const iframeRef = useRef(null);
-
-    useEffect(() => {
-        const iframe = iframeRef.current;
-        const handleMessage = (event) => {
-            if (event.source === iframe.contentWindow) {
-                onMessage(event);
-            }
-        };
-        window.addEventListener('message', handleMessage);
-        return () => window.removeEventListener('message', handleMessage);
-    }, [iframeRef, onMessage]);
 
     return (
         <iframe

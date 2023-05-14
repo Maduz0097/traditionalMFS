@@ -1,84 +1,77 @@
 import React, { useEffect, useRef,useState } from 'react';
 import Microfrontend from './Microfrontend';
-import MessageBus from './MessageBus';
 import './App.css';
-const messageBus = new MessageBus();
+
 
 const MicrofrontendA = 'http://localhost:4000';
-const MicrofrontendB = 'http://localhost:3002';
+const MicrofrontendB = 'http://localhost:5000';
 
 function App() {
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const handleMessage = (event) => {
-        if (event.data.type === 'register') {
-            messageBus.subscribe(event.data.event, (data) => {
-                event.source.postMessage({ type: event.data.event, data }, '*');
-            });
-        }
+    const [messages, setMessages] = useState([]);
+    const [receivedTime,setReceivedTime] = useState([])
+    // container.js
+    const subscriptions = {
+        channel:["channel1"]
     };
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            console.log(0,performance.now())
-            await messageBus.publish('eventFromContainer', {
-                "empid": "SJ011MS",
-                "personal":
-                    {
-                        "name":"Smith Jones",
-                        "gender":"Male",
-                        "age": 28,
-                        "address":
-                            {
-                                "streetaddress":"724th Street",
-                                "city":"New York",
-                                "state": "NY",
-                                "postalcode":"10038"
-                            }
-                    },
-                "profile":
-                    {
-                        "designation":"Deputy General",
-                        "department":"Finance"
-                    }
-            })
-            console.log(1,performance.now())
-            setTitle('');
-            setDescription('');
-        } catch (error) {
-            console.error('Error creating news event:', error);
+
+
+useEffect(()=>{
+    window.addEventListener('message', (event) => {
+        console.log(performance.now())
+        const { channel, data } = event.data;
+        console.log(data)
+        let performanceTime = performance.now()
+        if (channel == 'channel1'){
+            setMessages(prevState => [...prevState,data.message])
+            setReceivedTime(prevState => [...prevState,performanceTime])
         }
-    };
-    useEffect(() => {
-        window.addEventListener('message', handleMessage);
-        return () => window.removeEventListener('message', handleMessage);
-    }, []);
+
+    });
+    return () => {
+        window.removeEventListener('message',(event)=>{
+            console.log("unmounted")
+        })
+    }
+},[])
+
+
+
 
     return (
         <div className="App">
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label htmlFor="title">Title:</label>
-                    <input
-                        id="title"
-                        type="text"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                    />
+            <div className={"main-container"}>
+                <h2>Main Container</h2>
+                <div className={"data-view"}>
+                    <h3>Data View</h3>
+                    <div className={"data-list"}>
+                        <ul>
+                            {
+                                messages?.map((message,index)=>(
+                                    <li>
+                                        {message} | {receivedTime[index]}
+                                    </li>
+                                ))
+                            }
+                        </ul>
+
+                    </div>
                 </div>
-                <div>
-                    <label htmlFor="description">Description:</label>
-                    <textarea
-                        id="description"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                    />
+                <div className="grid-container">
+                    <div className="grid-item">
+                        <h3>Micro Frontend 1</h3>
+                        <div>
+                            <Microfrontend src={`${MicrofrontendA}`} id="microfrontend-a"  />
+                        </div>
+                    </div>
+                    <div className="grid-item">
+                        <h3>Micro Frontend 2</h3>
+                        <div>
+                            <Microfrontend src={`${MicrofrontendB}`} id="microfrontend-b"  />
+                        </div>
+                    </div>
                 </div>
-                <button type="submit">Send Message to Microfrontends</button>
-            </form>
-            {/*<button onClick={() => messageBus.publish('eventFromContainer', {message,description})}>Send Message to Microfrontends</button>*/}
-            <Microfrontend src={`${MicrofrontendA}`} id="microfrontend-a" onMessage={handleMessage} />
-            {/*<Microfrontend src={`\${MicrofrontendB}`} id="microfrontend-b" onMessage={handleMessage} />*/}
+            </div>
+
         </div>
     );
 }
