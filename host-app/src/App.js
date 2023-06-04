@@ -4,8 +4,8 @@ import './App.css';
 import DataView from "./DataView";
 
 
-const MicrofrontendA = 'http://192.168.1.2:8002';
-const MicrofrontendB = 'http://192.168.1.2:8003';
+const MicrofrontendA = 'https://remote-app2.web.app';
+const MicrofrontendB = 'https://remote-app1.web.app';
 
 function App() {
 
