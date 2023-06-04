@@ -42,7 +42,7 @@ useEffect(() => {
           <button onClick={()=> handleSubmit(obj7)}>Send Data 449KB </button>
           <button onClick={()=> handleSubmit(obj8)}>Send Data 1.91MB </button>
           <button onClick={()=> handleSubmit(obj9)}>Send Data 2.67MB </button>
-          <button onClick={()=> handleSubmit(obj)}>Send Data 5MB </button>
+          <button id="two" onClick={()=> handleSubmit(obj)}>Send Data 5MB </button>
 
 
         <p name="send">{sendTime}</p>
